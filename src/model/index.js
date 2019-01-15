@@ -5,7 +5,11 @@ const Sequelize = require('sequelize');
 const db = {};
 const basename = path.basename(module.filename);
 
-const sequelize = new Sequelize(process.env.DATABASE_URL);
+
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  host: 'localhost',
+  storage: path.join(__dirname, 'mabaseqsi2.sqlite')});
 fs.readdirSync(__dirname)
   .filter(
     file =>
