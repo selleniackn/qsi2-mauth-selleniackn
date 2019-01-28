@@ -1,6 +1,6 @@
 const express = require('express');
 const jwt = require('jwt-simple');
-const { createUser, loginUser } = require('../controller/users');
+const { createUser, loginUser, deleteUser, updateUser, getUser } = require('../controller/users');
 const logger = require('../logger');
 
 const apiUsers = express.Router();
@@ -95,4 +95,58 @@ apiUsersProtected.get('/', (req, res) =>
   })
 );
 
+/*delete*/
+
+apiUsersProtected.delete('/delete', (req, res) =>
+ !req.body.email || !req.body.password
+    ? res.status(400).send({
+        success: false,
+        message: 'email and password are required'
+      })
+    : deleteUser(req.user.id)
+          .then(res.status(200).send({
+            success: true,
+            message: 'User have been deleted'
+          })
+        )
+        .catch(err => {
+          logger.error(`💥 Failed to delete user : ${err.stack}`);
+          return res.status(504).send({
+            success: false,
+            message: `${err.name} : ${err.message}`
+          });
+        })
+);
+
+
+/*update */
+
+apiUsersProtected.put('/update', (req, res) =>
+  !req.body.email || !req.body.password
+    ? res.status(400).send({
+        success: false,
+        message: 'email and password are required'
+      })
+    : updateUser(req.user.id, req.body)
+    .then(res.status(200).send({
+            success: true,
+            profile: req.user,
+            message: 'user successly updated'
+          })
+        )
+        .catch(err => {
+          logger.error(`💥 Failed to update user : ${err.stack}`);
+          return res.status(500).send({
+            success: false,
+            message: `${err.name} : ${err.message}`
+          });
+        })
+);
+
+
+
+
+
+
 module.exports = { apiUsers, apiUsersProtected };
+
